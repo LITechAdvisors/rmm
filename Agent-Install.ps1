@@ -57,16 +57,12 @@ else {
 
     # Download the file
     Write-Host "Downloading file..." -Verbose
-    Invoke-WebRequest -Uri $fileUrl -OutFile $fileName -Verbose
+    Start-BitsTransfer -Source $fileUrl -Destination $fileName -Description "Downloading file" -Verbose
 
     # Step 9: Silently install MSI file
     Write-Host "Installing MSI file..." -Verbose
-    Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$fileName`" /qn" -Wait -Verbose
+    $installArgs = "/i `"$fileName`" /qn"
+    Start-Process -FilePath msiexec.exe -ArgumentList $installArgs -Wait -Verbose
     Write-Host "Installation completed." -Verbose
 
-    # Step 10: Print script completion message
-    Write-Host "Script execution completed." -Verbose
-}
-
-# Wait for 5 seconds before closing the window (optional)
-Start-Sleep -Seconds 5
+    # Step 
