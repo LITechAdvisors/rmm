@@ -36,9 +36,9 @@ if ($services) {
         return
     }
 } else {
-    # Step 4: Create Support directory if no services found
+    # Step 4: Create Support directory
     Write-Host "Service not found."
-    Write-Host "Proceeding with the installation."
+    Write-Host "Creating Support directory."
     $supportDir = "C:\Support"
     if (-not (Test-Path $supportDir)) {
         New-Item -ItemType Directory -Path $supportDir | Out-Null
