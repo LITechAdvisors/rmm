@@ -32,18 +32,17 @@ if ($services) {
     }
     else {
         Write-Host "All services are already running."
-        Write-Host "Script execution completed."
-        return
     }
 } else {
-    # Step 4: Create Support directory
     Write-Host "Service not found."
-    Write-Host "Creating Support directory."
-    $supportDir = "C:\Support"
-    if (-not (Test-Path $supportDir)) {
-        New-Item -ItemType Directory -Path $supportDir | Out-Null
-        Write-Host "Support directory created."
-    }
+}
+
+# Step 4: Create Support directory
+Write-Host "Creating Support directory."
+$supportDir = "C:\Support"
+if (-not (Test-Path $supportDir)) {
+    New-Item -ItemType Directory -Path $supportDir | Out-Null
+    Write-Host "Support directory created."
 }
 
 # Step 5: Download file
