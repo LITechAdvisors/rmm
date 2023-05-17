@@ -33,38 +33,38 @@ if ($services) {
     else {
         Write-Host "All services are already running."
     }
-} else {
+}
+else {
+    # Step 4: Create Support directory
     Write-Host "Service not found."
+    Write-Host "Creating Support directory."
+    $supportDir = "C:\Support"
+    if (-not (Test-Path $supportDir)) {
+        New-Item -ItemType Directory -Path $supportDir | Out-Null
+        Write-Host "Support directory created."
+    }
+
+    # Step 5: Download file
+    $fileUrl = "https://drive.google.com/uc?id=1D-0qpQYxgFEukqs2fsF2ZybIu1d8X72N&authuser=0&export=download&confirm=t&uuid=6a923679-d2a0-4d66-b8c8-94171796735d&at=AKKF8vyXz8agiJg36W8zUHoYWzHv:1684328105399"
+
+    $constantFileName = "Windows_OS_ITSPlatform_"
+    $fileName = "C:\Support\$Location`_$constantFileName`TKN$Key.msi"
+
+    # Check if the file already exists and overwrite it
+    if (Test-Path $fileName) {
+        Write-Host "File already exists. Overwriting..."
+        Remove-Item $fileName -Force
+    }
+
+    # Download the file
+    Write-Host "Downloading file..."
+    Invoke-WebRequest -Uri $fileUrl -OutFile $fileName -Quiet
+
+    # Step 9: Silently install MSI file
+    Write-Host "Installing MSI file..."
+    Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$fileName`" /qn" -Wait
+    Write-Host "Installation completed."
+
+    # Step 10: Print script completion message
+    Write-Host "Script execution completed."
 }
-
-# Step 4: Create Support directory
-Write-Host "Creating Support directory."
-$supportDir = "C:\Support"
-if (-not (Test-Path $supportDir)) {
-    New-Item -ItemType Directory -Path $supportDir | Out-Null
-    Write-Host "Support directory created."
-}
-
-# Step 5: Download file
-$fileUrl = "https://drive.google.com/uc?id=1D-0qpQYxgFEukqs2fsF2ZybIu1d8X72N&authuser=0&export=download&confirm=t&uuid=6a923679-d2a0-4d66-b8c8-94171796735d&at=AKKF8vyXz8agiJg36W8zUHoYWzHv:1684328105399"
-
-$constantFileName = "Windows_OS_ITSPlatform_"
-$fileName = "C:\Support\$Location`_$constantFileName`TKN$Key.msi"
-
-# Check if the file already exists and overwrite it
-if (Test-Path $fileName) {
-    Write-Host "File already exists. Overwriting..."
-    Remove-Item $fileName -Force
-}
-
-# Download the file
-Write-Host "Downloading file..."
-Invoke-WebRequest -Uri $fileUrl -OutFile $fileName
-
-# Step 9: Silently install MSI file
-Write-Host "Installing MSI file..."
-Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$fileName`" /qn" -Wait
-Write-Host "Installation completed."
-
-# Step 10: Print script completion message
-Write-Host "Script execution completed."
