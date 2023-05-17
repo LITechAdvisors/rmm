@@ -65,3 +65,12 @@ try {
 } catch {
     Write-Host "Failed to download the file." -Verbose
 }
+
+# Install the MSI file silently
+try {
+    Write-Host "Installing MSI..." -Verbose
+    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$fileName`" /qn" -Wait -NoNewWindow
+    Write-Host "MSI installed." -Verbose
+} catch {
+    Write-Host "Failed to install the MSI." -Verbose
+}
