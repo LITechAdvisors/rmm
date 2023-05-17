@@ -56,3 +56,13 @@ $fileName = "C:\Support\$ClientLocation_Windows_OS_ITSPlatform_TKN${Key}.msi"
 if (Test-Path $fileName) {
     Write-Host "File already exists. Overwriting..." -Verbose
     Remove-Item $fileName
+}
+
+# Download the file
+try {
+    Write-Host "Downloading file..." -Verbose
+    Invoke-WebRequest -Uri $fileUrl -OutFile $fileName
+    Write-Host "File downloaded." -Verbose
+} catch {
+    Write-Host "Failed to download the file." -Verbose
+}
