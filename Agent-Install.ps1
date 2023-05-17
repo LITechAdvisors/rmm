@@ -1,6 +1,6 @@
 param (
     [Parameter(Mandatory = $true)]
-    [string]$Location,
+    [string]$ClientLocation,
 
     [Parameter(Mandatory = $true)]
     [string]$Key
@@ -48,7 +48,7 @@ param (
         $fileUrl = "https://drive.google.com/uc?id=1D-0qpQYxgFEukqs2fsF2ZybIu1d8X72N&authuser=0&export=download&confirm=t&uuid=6a923679-d2a0-4d66-b8c8-94171796735d&at=AKKF8vyXz8agiJg36W8zUHoYWzHv:1684328105399"
 
         $constantFileName = "Windows_OS_ITSPlatform_"
-        $fileName = "C:\Support\$Location`_$constantFileName`TKN$Key.msi"
+        $fileName = "C:\Support\$ClientLocation`_$constantFileName`TKN$Key.msi"
 
         # Check if the file already exists and overwrite it
         if (Test-Path $fileName) {
