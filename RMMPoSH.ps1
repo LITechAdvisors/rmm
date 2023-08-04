@@ -314,5 +314,6 @@ Function MainScript {
     Write-Host "Installing RMM..."
     InstallRMM -Key $Key
 }
+}
 
 MainScript -Key $Key
