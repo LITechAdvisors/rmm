@@ -1,3 +1,11 @@
+<#
+This is a PowerShell Module for CW RMM
+InstallRMM & MainScript written and developed by LI Tech Advisors
+UninstallRMM provided by MSPGeek user dcon with modifications made to loop and iterate through
+CW RMM is a piece of shit.
+#>
+
+
 Function InstallRMM {
 
     # Create Support directory
