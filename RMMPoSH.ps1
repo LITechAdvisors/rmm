@@ -1,13 +1,4 @@
 Function InstallRMM {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Key,
-
-    )
-    Write-Host "InstallRMM: Key = $Key"
-
-    # Clean up the key by removing illegal characters
-    $Key = $Key -replace '[^\w\-]', ''
 
     # Create Support directory
     Write-Host "Service not found."
@@ -262,19 +253,13 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 Function MainScript {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Key,
-        
-        [Parameter(Mandatory=$false)]
-        [switch]$Transcript
+        [string]$Key
     )
-    Write-Host "MainScript: Key = $Key, Transcript = $Transcript"
-    InstallRMM -Key $Key -Transcript $Transcript
-}
-    
-    if ($Transcript) {
-        Start-Transcript -Path "$env:USERPROFILE\transcript.txt" -Append
-    }
+    Write-Host "MainScript: Key = $Key"
 
+    # Clean up the key by removing illegal characters
+    $Key = $Key -replace '[^\w\-]', ''
+    
     # If the Key parameter wasn't provided, prompt for it
     if (-not $Key) {
         $Key = Read-Host -Prompt 'Input the Key'
