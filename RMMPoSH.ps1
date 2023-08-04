@@ -307,4 +307,4 @@ Function MainScript {
     InstallRMM -Key $Key
 }
 
-MainScript
+MainScript -Key $Key
