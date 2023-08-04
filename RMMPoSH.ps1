@@ -1,8 +1,9 @@
 function installRMM {
-    param (
-        [Parameter(Mandatory = $false)]
-        [string]$Key = (Read-Host -Prompt 'Input the Key')
-    )
+    Param(
+    [Parameter(Mandatory=$true)]
+    [string]$Key
+)
+
     # Clean up the key by removing illegal characters
     $Key = $Key -replace '[^\w\-]', ''
 
