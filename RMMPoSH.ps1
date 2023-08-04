@@ -2,11 +2,9 @@ Function InstallRMM {
     param (
         [Parameter(Mandatory=$true)]
         [string]$Key,
-        
-        [Parameter(Mandatory=$false)]
-        [switch]$Transcript
+
     )
-    Write-Host "InstallRMM: Key = $Key, Transcript = $Transcript"
+    Write-Host "InstallRMM: Key = $Key"
 
     # Clean up the key by removing illegal characters
     $Key = $Key -replace '[^\w\-]', ''
