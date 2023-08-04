@@ -260,9 +260,14 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 function MainScript {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $true)]
         [string]$Key
+        [switch]$Transcript
     )
+    
+    if ($Transcript) {
+        Start-Transcript -Path "$env:USERPROFILE\transcript.txt" -Append
+    }
 
     # If the Key parameter wasn't provided, prompt for it
     if (-not $Key) {
