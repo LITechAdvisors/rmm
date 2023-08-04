@@ -1,10 +1,10 @@
 Function InstallRMM {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Key,
+        [switch]$Key,
         
         [Parameter(Mandatory=$false)]
-        [string]$Transcript
+        [switch]$Transcript
     )
     Write-Host "InstallRMM: Key = $Key, Transcript = $Transcript"
 
@@ -264,10 +264,10 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 Function MainScript {
     param (
         [Parameter(Mandatory=$true)]
-        [string]$Key,
+        [switch]$Key,
         
         [Parameter(Mandatory=$false)]
-        [string]$Transcript
+        [switch]$Transcript
     )
     Write-Host "MainScript: Key = $Key, Transcript = $Transcript"
     InstallRMM -Key $Key -Transcript $Transcript
