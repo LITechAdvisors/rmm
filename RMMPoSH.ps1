@@ -1,7 +1,7 @@
 Function InstallRMM {
     param (
         [Parameter(Mandatory=$true)]
-        [switch]$Key,
+        [string]$Key,
         
         [Parameter(Mandatory=$false)]
         [switch]$Transcript
@@ -264,7 +264,7 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 Function MainScript {
     param (
         [Parameter(Mandatory=$true)]
-        [switch]$Key,
+        [string]$Key,
         
         [Parameter(Mandatory=$false)]
         [switch]$Transcript
