@@ -245,7 +245,7 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
     
     if ($i -ne 3) { # to avoid waiting after the last iteration
         Write-Output "Waiting 20 seconds before next run..."
-        Start-Sleep -Seconds 20
+        Start-Sleep -Seconds 5
     }
 }
 }
