@@ -261,7 +261,7 @@ function MainScript {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Key
+        [string]$Key,
         [switch]$Transcript
     )
     
