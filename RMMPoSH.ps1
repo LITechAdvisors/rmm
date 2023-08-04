@@ -1,11 +1,12 @@
-function installRMM {
-param (
-    [Parameter(Mandatory=$true)]
-    [string]$Key,
-    
-    [Parameter(Mandatory=$false)]
-    [string]$Transcript
-)
+Function InstallRMM {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Key,
+        
+        [Parameter(Mandatory=$false)]
+        [string]$Transcript
+    )
+    Write-Host "InstallRMM: Key = $Key, Transcript = $Transcript"
 
     # Clean up the key by removing illegal characters
     $Key = $Key -replace '[^\w\-]', ''
@@ -260,15 +261,17 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 }
 }
 
-function MainScript {
-    [CmdletBinding()]
-param (
-    [Parameter(Mandatory=$true)]
-    [string]$Key,
-    
-    [Parameter(Mandatory=$false)]
-    [string]$Transcript
-)
+Function MainScript {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Key,
+        
+        [Parameter(Mandatory=$false)]
+        [string]$Transcript
+    )
+    Write-Host "MainScript: Key = $Key, Transcript = $Transcript"
+    InstallRMM -Key $Key -Transcript $Transcript
+}
     
     if ($Transcript) {
         Start-Transcript -Path "$env:USERPROFILE\transcript.txt" -Append
@@ -320,7 +323,4 @@ param (
     Write-Host "Installing RMM..."
     InstallRMM -Key $Key
 }
-}
 
-# Call MainScript at the beginning
-MainScript
