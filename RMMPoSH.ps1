@@ -1,7 +1,10 @@
 function installRMM {
-    Param(
+param (
     [Parameter(Mandatory=$true)]
-    [string]$Key
+    [string]$Key,
+    
+    [Parameter(Mandatory=$false)]
+    [string]$Transcript
 )
 
     # Clean up the key by removing illegal characters
@@ -259,11 +262,13 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 
 function MainScript {
     [CmdletBinding()]
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Key,
-        [switch]$Transcript
-    )
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$Key,
+    
+    [Parameter(Mandatory=$false)]
+    [string]$Transcript
+)
     
     if ($Transcript) {
         Start-Transcript -Path "$env:USERPROFILE\transcript.txt" -Append
