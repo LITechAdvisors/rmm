@@ -26,9 +26,9 @@ Function CheckServices {
 
 param (
     [Parameter(Mandatory=$true)]
-    [string]$Key
+    [string]$Token
 )
-    Write-Host "Key = $Key"
+    Write-Host "Token = $Token"
 
     # Look for the two services ITSPlatform & SAAZ
     $serviceNames = 'ITSPlatform*', 'SAAZ*'
@@ -60,10 +60,10 @@ param (
         Log "Only one service found. Running uninstaller and then installing again."
         UninstallRMM
         Start-Sleep -Seconds 60
-        InstallRMM -Key $Key
+        InstallRMM -Token $Token
     } else {
         Log "No services found. Installing RMM."
-        InstallRMM -Key $Key
+        InstallRMM -Token $Token
 
     }
 }
@@ -71,7 +71,7 @@ param (
 Function StartServices {
     param (
         [string[]]$ServiceNames,
-        [string]$Key
+        [string]$Token
     )
 
     foreach ($serviceName in $ServiceNames) {
@@ -86,7 +86,7 @@ Function StartServices {
                 Log "Failed to start service $serviceName. Running uninstaller and then installing again."
                 UninstallRMM
                 Start-Sleep -Seconds 60
-                InstallRMM -Key $Key
+                InstallRMM -Token $Token
             }
         }
     }
@@ -95,21 +95,21 @@ Function StartServices {
 
 Function InstallRMM {
     param (
-        [string]$Key
+        [string]$Token
     )
     # Create Support directory
     Write-Host "Service not found."
     Write-Host "Creating Support directory."
-    $supportDir = "C:\Support"
+    $supportDir = "C:\Temp"
     if (-not (Test-Path $supportDir)) {
         New-Item -ItemType Directory -Path $supportDir | Out-Null
-        Write-Host "Support directory created."
+        Write-Host "Temp directory created."
     }
 
     # Download file
-    $fileUrl = "https://drive.google.com/uc?id=1D-0qpQYxgFEukqs2fsF2ZybIu1d8X72N&authuser=0&export=download&confirm=t&uuid=6a923679-d2a0-4d66-b8c8-94171796735d&at=ALt4Tm1edSb3lPEu8wfCGtq4OCV2:1691153630400"
+    $fileUrl = "https://prod.setup.itsupport247.net/windows/BareboneAgent/32/Windows_OS_ITSPlatform_TKN${Token}/MSI/setup"
 
-    $fileName = "C:\Support\Windows_OS_ITSPlatform_TKN${Key}.msi"
+    $fileName = "C:\temp\CWRMMInstaller.msi"
 
     # Check if the file already exists and overwrite it
     if (Test-Path $fileName) {
@@ -129,7 +129,7 @@ Function InstallRMM {
     # Install the MSI file silently
     try {
         Write-Host "Installing MSI..."
-        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$fileName`" /qn" -Wait -NoNewWindow
+        Start-Process -Wait -FilePath "msiexec.exe" -ArgumentList "/i $fileName TOKEN=""$Token"" /qn" -NoNewWindow
         Write-Host "MSI installed."
     } catch {
         Write-Host "Failed to install the MSI."
