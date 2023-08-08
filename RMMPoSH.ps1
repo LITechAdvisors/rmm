@@ -336,5 +336,3 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
     }
 }
 }
-
-CheckServices
