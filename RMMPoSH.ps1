@@ -5,12 +5,6 @@ UninstallRMM provided by MSPGeek user dcon with modifications made to loop and i
 CW RMM is a piece of shit.
 #>
 
-param (
-    [Parameter(Mandatory=$true)]
-    [string]$Key
-)
-    Write-Host "Key = $Key"
-
 Function Log {
     param (
         [string]$Message,
@@ -29,7 +23,14 @@ Function Log {
 
 
 Function CheckServices {
-    # Define the service names to look for
+
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$Key
+)
+    Write-Host "Key = $Key"
+
+    # Look for the two services ITSPlatform & SAAZ
     $serviceNames = 'ITSPlatform*', 'SAAZ*'
     $servicesFound = 0
     $servicesRunning = 0
