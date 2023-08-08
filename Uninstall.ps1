@@ -1,3 +1,6 @@
+for ($i=1; $i -le 3; $i++){
+Write-Output "Beginning loop number $i"
+
 # Uninstall CW RMM
 Write-Output ""
 Write-Output "Beginning CW RMM Uninstall"
@@ -9,11 +12,11 @@ Get-WmiObject -Class Win32_Product -Filter "Name='ITSPlatform'" | ForEach-Object
 # Run Uninstall.exe for SAAZOD
 Write-Output "Triggering SAAZOD uninstall"
 if (Test-Path -Path "C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.exe") {
-	Start-Process -FilePath "C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.exe" -Wait -ArgumentList '/silent /u:"C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.xml"'
-	Start-Sleep -s 10
+Start-Process -FilePath "C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.exe" -Wait -ArgumentList '/silent /u:"C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.xml"'
+Start-Sleep -s 10
 }
 else {
-	Write-Output "WARNING: C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.exe does not exist"
+Write-Output "WARNING: C:\Program Files (x86)\SAAZOD\Uninstall\Uninstall.exe does not exist"
 }
 
 
@@ -21,41 +24,47 @@ else {
 #Get-Process -Name 'platform-agent*', 'SAAZ*', 'rthlpdk' | Stop-Process -Force
 Write-Output "Stopping CW RMM processes"
 $CWRMMProcesses = @(
-	'platform-agent*',
-	'SAAZ*',
-	'rthlpdk'
+'platform-agent*',
+'SAAZ*',
+'rthlpdk'
 )
 
-$ProcessesToStop = Get-Process -Name $CWRMMProcesses | Select-Object -ExpandProperty Name
+$ProcessesToStop = Get-Process -Name $CWRMMProcesses -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 forEach ($ProcessToStop in $ProcessesToStop) {
-	if (Get-Process -Name "$ProcessToStop") {
-		Write-Output "Stopping Process: $ProcessToStop"
-		Get-Process -Name "$ProcessToStop" | Stop-Process -Force
-	}
+if (Get-Process -Name "$ProcessToStop" -ErrorAction SilentlyContinue) {
+Write-Output "Stopping Process: $ProcessToStop"
+Get-Process -Name "$ProcessToStop" | Stop-Process -Force -ErrorAction SilentlyContinue
+}
 }
 
 # Stop and force close related services
 #Get-Service -Name 'ITSPlatform*', 'SAAZ*' | Stop-Service -Force
 Write-Output "Stopping CW RMM services"
 $CWRMMServices = @(
-	'ITSPlatform*',
-	'SAAZ*'
+'ITSPlatform*',
+'SAAZ*'
 )
 
-$ServicesToStop = Get-Service -Name $CWRMMServices | Select-Object -ExpandProperty Name
+Write-Output "Stopping CW RMM services"
+$CWRMMServices = @(
+'ITSPlatform*',
+'SAAZ*'
+)
+
+$ServicesToStop = Get-Service -Name $CWRMMServices -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 forEach ($ServiceToStop in $ServicesToStop) {
-	if (Get-Service -Name "$ServiceToStop") {
-		Write-Output "Stopping Service: $ServiceToStop"
-		Get-Service -Name "$ServiceToStop" | Stop-Service -Force
-	}
+if (Get-Service -Name "$ServiceToStop" -ErrorAction SilentlyContinue) {
+Write-Output "Stopping Service: $ServiceToStop"
+Get-Service -Name "$ServiceToStop" | Stop-Service -Force -ErrorAction SilentlyContinue
+}
 }
 
 # Delete specified services
 Write-Output "Deleting CW RMM services"
 foreach ($service in $ServicesToStop) {
-	#sc.exe delete $service
-	Write-Output "Deleting service: $service"
-	Start-Process -FilePath "sc.exe" -ArgumentList "delete", $service -NoNewWindow -Wait 
+#sc.exe delete $service
+Write-Output "Deleting service: $service"
+Start-Process -FilePath "sc.exe" -ArgumentList "delete", $service -NoNewWindow -Wait
 }
 
 #Alternative service deletion
@@ -64,66 +73,66 @@ Get-CimInstance -ClassName win32_service | Where-Object { ($_.PathName -like 'IT
 # Delete specified folders
 Write-Output "Deleting CW RMM related folders."
 $FoldersToDelete = @(
-	'C:\Program Files (x86)\ITSPlatformSetupLogs',
-	'C:\Program Files (x86)\ITSPlatform',
-	'C:\Program Files (x86)\SAAZOD',
-	'C:\Program Files (x86)\SAAZODBKP',
-	'C:\ProgramData\SAAZOD'
+'C:\Program Files (x86)\ITSPlatformSetupLogs',
+'C:\Program Files (x86)\ITSPlatform',
+'C:\Program Files (x86)\SAAZOD',
+'C:\Program Files (x86)\SAAZODBKP',
+'C:\ProgramData\SAAZOD'
 )
 
 foreach ($folder in $FoldersToDelete) {
-	if (Test-Path $folder) {
-		Write-Output "Deleting folder: $folder"
-		Get-ChildItem $folder -Recurse -Force | Remove-Item -Recurse -Force -Confirm:$false -Verbose
-		Start-Sleep -Seconds 1
-		Remove-Item -Path $folder -Recurse -Force -Confirm:$false -Verbose
-	}
+if (Test-Path $folder) {
+Write-Output "Deleting folder: $folder"
+Get-ChildItem $folder -Recurse -Force | Remove-Item -Recurse -Force -Confirm:$false -Verbose
+Start-Sleep -Seconds 1
+Remove-Item -Path $folder -Recurse -Force -Confirm:$false -Verbose
+}
 }
 
 
 # Remove "C:\Program" file
 Write-Output "Testing for rogue 'C:\Program' file"
 if (Test-Path -LiteralPath "C:\Program" -PathType leaf) {
-	Write-Output "Deleting rogue 'C:\Program' file"
-	Remove-Item -LiteralPath "C:\Program" -Force -Confirm:$false -Verbose
+Write-Output "Deleting rogue 'C:\Program' file"
+Remove-Item -LiteralPath "C:\Program" -Force -Confirm:$false -Verbose
 }
 
 
 # Remove registry keys
 Write-Output "Deleting CW RMM registry keys"
 $RegistryKeysToRemove = @(
-	'HKLM:\SOFTWARE\WOW6432Node\SAAZOD',
-	'HKLM:\SOFTWARE\WOW6432Node\ITSPlatform'    
+'HKLM:\SOFTWARE\WOW6432Node\SAAZOD',
+'HKLM:\SOFTWARE\WOW6432Node\ITSPlatform'
 )
 
 foreach ($RegistryKey in $RegistryKeysToRemove) {
-	if (Test-Path -LiteralPath $RegistryKey) {
-		Write-Output "Deleting registry key: $RegistryKey"
-		Remove-Item -Path $RegistryKey -Recurse -Force -Confirm:$false -Verbose
-	}
+if (Test-Path -LiteralPath $RegistryKey) {
+Write-Output "Deleting registry key: $RegistryKey"
+Remove-Item -Path $RegistryKey -Recurse -Force -Confirm:$false -Verbose
+}
 }
 
 # Remove the registry key with spaces
-$BlankRegistryKey = "HKLM:\SOFTWARE\WOW6432Node\  \ITSPlatform"
+$BlankRegistryKey = "HKLM:\SOFTWARE\WOW6432Node\ \ITSPlatform"
 
 # Test if the specific registry key exists
 if (Test-Path -LiteralPath $BlankRegistryKey) {
-	Write-Output "Deleting registry key: $BlankRegistryKey"
+Write-Output "Deleting registry key: $BlankRegistryKey"
 
-	# Get parent key's path
-	$parentKey = Split-Path $BlankRegistryKey -Parent
+# Get parent key's path
+$parentKey = Split-Path $BlankRegistryKey -Parent
 
-	try {
-		# Delete the parent key recursively
-		Remove-Item -Path $parentKey -Recurse -Force -Confirm:$false -Verbose -ErrorAction Stop
-		Write-Output "Parent registry key deleted successfully."
-	}
-	catch {
-		Write-Output "Failed to delete parent registry key: $_"
-	}
+try {
+# Delete the parent key recursively
+Remove-Item -Path $parentKey -Recurse -Force -Confirm:$false -Verbose -ErrorAction Stop
+Write-Output "Parent registry key deleted successfully."
+}
+catch {
+Write-Output "Failed to delete parent registry key: $_"
+}
 }
 else {
-	Write-Output "Blank registry key not found. Nothing to delete."
+Write-Output "Blank registry key not found. Nothing to delete."
 }
 
 
@@ -138,31 +147,31 @@ $targetProductName = 'ITSPlatform'
 
 # Function to search for keys with the specified product name
 function Find-RegistryKeys {
-	param (
-		[string]$Path
-	)
+param (
+[string]$Path
+)
 
-	# Get all subkeys
-	$subKeys = Get-ChildItem -Path $Path -ErrorAction SilentlyContinue
+# Get all subkeys
+$subKeys = Get-ChildItem -Path $Path -ErrorAction SilentlyContinue
 
-	# Loop through each subkey
-	foreach ($subKey in $subKeys) {
-		# Get the value of the productName property
-		$productName = (Get-ItemProperty -Path $subKey.PSPath -Name 'productName' -ErrorAction SilentlyContinue).productName
+# Loop through each subkey
+foreach ($subKey in $subKeys) {
+# Get the value of the productName property
+$productName = (Get-ItemProperty -Path $subKey.PSPath -Name 'productName' -ErrorAction SilentlyContinue).productName
 
-		# Check if the productName matches the target product name
-		if ($productName -eq $targetProductName) {
-			# Output the path of the matching key
-			#Write-Output $subKey.PSPath
-			[PSCustomObject]@{
-				Path = $subKey.PSPath
-				ProductName = $productName
-			}
-		}
+# Check if the productName matches the target product name
+if ($productName -eq $targetProductName) {
+# Output the path of the matching key
+#Write-Output $subKey.PSPath
+[PSCustomObject]@{
+Path = $subKey.PSPath
+ProductName = $productName
+}
+}
 
-		# Search for matching keys in the current subkey
-		Find-RegistryKeys -Path $subKey.PSPath
-	}
+# Search for matching keys in the current subkey
+Find-RegistryKeys -Path $subKey.PSPath
+}
 }
 
 # Start the search
@@ -170,12 +179,22 @@ $ProductRegistryKeysToRemove = Find-RegistryKeys -Path $startPath
 
 # Delete the found keys
 if ($ProductRegistryKeysToRemove) {
-    foreach ($ProductRegistryKeyToRemove in $ProductRegistryKeysToRemove) {
-        if (Test-Path -LiteralPath $ProductRegistryKeyToRemove.Path) {
-            Write-Output "Deleting registry key: $($ProductRegistryKeyToRemove.Path)"
-            Remove-Item -Path $ProductRegistryKeyToRemove.Path -Recurse -Force -Confirm:$false -Verbose
-        }
-    }
+foreach ($ProductRegistryKeyToRemove in $ProductRegistryKeysToRemove) {
+if (Test-Path -LiteralPath $ProductRegistryKeyToRemove.Path) {
+Write-Output "Deleting registry key: $($ProductRegistryKeyToRemove.Path)"
+Remove-Item -Path $ProductRegistryKeyToRemove.Path -Recurse -Force -Confirm:$false -Verbose
+}
+}
 }
 
 Write-Output "Done! CW RMM should be successfully uninstalled and remnants removed"
+
+
+
+
+    
+    if ($i -ne 3) { # to avoid waiting after the last iteration
+        Write-Output "Waiting 5 seconds before next run..."
+        Start-Sleep -Seconds 5
+    }
+}
