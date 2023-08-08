@@ -28,7 +28,7 @@ param (
     [Parameter(Mandatory=$true)]
     [string]$Key
 )
-    Write-Host "MainScript: Key = $Key"
+    Write-Host "Key = $Key"
 
     # Define the service names to look for
     $serviceNames = 'ITSPlatform*', 'SAAZ*'
