@@ -71,7 +71,7 @@ Function CheckServices {
 
 Function StartServices {
     param (
-        [string]$ServiceNames,
+        [string[]]$ServiceNames,
         [string]$Key
     )
 
