@@ -5,6 +5,93 @@ UninstallRMM provided by MSPGeek user dcon with modifications made to loop and i
 CW RMM is a piece of shit.
 #>
 
+param (
+[Parameter(Mandatory=$true)]
+[string]$Key
+)
+Write-Host "MainScript: Key = $Key"
+
+
+
+Function Log {
+    param (
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "$timestamp [$Level] $Message"
+    
+    # Print to console
+    Write-Host $logMessage
+
+    # Write to log file
+    Add-Content -Path "C:\Support\script.log" -Value $logMessage
+}
+
+
+Function CheckServices {
+    # Define the service names to look for
+    $serviceNames = 'ITSPlatform*', 'SAAZ*'
+    $servicesFound = 0
+    $servicesRunning = 0
+
+    foreach ($serviceName in $serviceNames) {
+        $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+        if ($service) {
+            $servicesFound++
+            if ($service.Status -eq 'Running') {
+                $servicesRunning++
+            }
+        }
+    }
+
+    Log "Found $servicesFound out of 2 services."
+
+    if ($servicesFound -eq 2) {
+        if ($servicesRunning -eq 2) {
+            Log "Both services are running. Exiting script."
+            exit
+        } else {
+            Log "Services found but not running. Trying to start them."
+            StartServices $serviceNames
+        }
+    } elseif ($servicesFound -eq 1) {
+        Log "Only one service found. Running uninstaller and then installing again."
+        UninstallRMM
+        Start-Sleep -Seconds 60
+        InstallRMM -Key $Key
+    } else {
+        Log "No services found. Installing RMM."
+        InstallRMM -Key $Key
+
+    }
+}
+
+Function StartServices {
+    param (
+        [string[]]$ServiceNames
+    )
+
+    foreach ($serviceName in $ServiceNames) {
+        $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+        if ($service.Status -ne 'Running') {
+            try {
+                Log "Trying to start service $serviceName."
+                $service | Start-Service -ErrorAction Stop
+                Log "Service $serviceName started."
+            } catch {
+                Log "Failed to start service $serviceName. Running uninstaller and then installing again."
+                UninstallRMM
+                Start-Sleep -Seconds 60
+                InstallRMM
+            }
+        }
+    }
+}
+
 
 Function InstallRMM {
 
@@ -46,14 +133,6 @@ Function InstallRMM {
         Write-Host "Failed to install the MSI."
     }
 }
-
-# rest of the code...
-
-
-
-
-
-
 
 function uninstallRMM {
     for ($i=1; $i -le 3; $i++){
@@ -258,62 +337,4 @@ Write-Output "Done! CW RMM should be successfully uninstalled and remnants remov
 }
 }
 
-Function MainScript {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Key
-    )
-    Write-Host "MainScript: Key = $Key"
-
-    # Clean up the key by removing illegal characters
-    $Key = $Key -replace '[^\w\-]', ''
-    
-    # If the Key parameter wasn't provided, prompt for it
-    if (-not $Key) {
-        $Key = Read-Host -Prompt 'Input the Key'
-    }
-
-    # Define the service names to look for
-    $serviceNames = 'ITSPlatform*', 'SAAZ*'
-
-    # Define a flag for whether to install RMM
-    $shouldInstallRMM = $false
-
-    foreach ($serviceName in $serviceNames) {
-        # Get all the services matching the pattern
-        $services = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
-
-        if ($services) {
-            Write-Host "Services matching '$serviceName' found."
-            foreach ($service in $services) {
-                if ($service.Status -ne 'Running') {
-                    try {
-                        Write-Host "Service '$($service.Name)' is not running. Starting the service..."
-                        $service | Start-Service -ErrorAction Stop
-                        Write-Host "Service '$($service.Name)' started."
-                    } catch {
-                        Write-Host "Failed to start service '$($service.Name)'. Will uninstall and re-install RMM later..."
-                        $shouldInstallRMM = $true
-                    }
-                }
-                else {
-                    Write-Host "Service '$($service.Name)' is already running."
-                }
-            }
-        } else {
-            Write-Host "No services found matching '$serviceName'. Will install RMM later..."
-            $shouldInstallRMM = $true
-        }
-    }
-
-    if ($shouldInstallRMM) {
-    Write-Host "Uninstalling RMM..."
-    UninstallRMM
-    Write-Host "Waiting for 60 seconds before reinstalling RMM..."
-    Start-Sleep -Seconds 60
-    Write-Host "Installing RMM..."
-    InstallRMM -Key $Key
-}
-}
-
-MainScript -Key $Key
+CheckServices
