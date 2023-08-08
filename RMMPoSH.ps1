@@ -72,6 +72,7 @@ Function CheckServices {
 Function StartServices {
     param (
         [string[]]$ServiceNames
+        [string]$Key
     )
 
     foreach ($serviceName in $ServiceNames) {
@@ -86,7 +87,7 @@ Function StartServices {
                 Log "Failed to start service $serviceName. Running uninstaller and then installing again."
                 UninstallRMM
                 Start-Sleep -Seconds 60
-                InstallRMM
+                InstallRMM -Key $Key
             }
         }
     }
@@ -94,7 +95,9 @@ Function StartServices {
 
 
 Function InstallRMM {
-
+    param (
+        [string]$Key
+    )
     # Create Support directory
     Write-Host "Service not found."
     Write-Host "Creating Support directory."
