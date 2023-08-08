@@ -1,7 +1,8 @@
 <#
 This is a PowerShell Module for CW RMM
-InstallRMM & MainScript written and developed by LI Tech Advisors
-UninstallRMM provided by MSPGeek user dcon with modifications made to loop and iterate through
+Inspired by LTPoSH
+Developed by John D @ LI Tech Advisors
+UninstallRMM provided by MSPGeek user DCon (danc) with modification to loop through
 
 #>
 
