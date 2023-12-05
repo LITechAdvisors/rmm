@@ -19,7 +19,7 @@ Function Log {
     Write-Host $logMessage
 
     # Write to log file
-    Add-Content -Path "C:\Support\script.log" -Value $logMessage
+    Add-Content -Path "C:\temp\script.log" -Value $logMessage
 }
 
 
