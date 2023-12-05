@@ -12,43 +12,38 @@ Function Log {
         [string]$Level = "INFO"
     )
 
-    $logFilePath = "C:\temp\script.log"
-    $logDir = Split-Path $logFilePath
-
-    # Ensure the directory for the log file exists
-    if (-not (Test-Path $logDir)) {
-        New-Item -ItemType Directory -Path $logDir | Out-Null
-    }
-
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "$timestamp [$Level] $Message"
-
-    # Write to log file
-    Add-Content -Path $logFilePath -Value $logMessage
-
+    
     # Print to console
     Write-Host $logMessage
+
+    # Write to log file
+    Add-Content -Path "C:\temp\script.log" -Value $logMessage
 }
 
-Function CheckServices {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Token
-    )
 
+Function CheckServices {
+
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$Token
+)
     Write-Host "Token = $Token"
 
     # Look for the two services ITSPlatform & SAAZ
-    $serviceNames = @('ITSPlatform*', 'SAAZ*')
+    $serviceNames = 'ITSPlatform*', 'SAAZ*'
     $servicesFound = 0
     $servicesRunning = 0
 
     foreach ($serviceName in $serviceNames) {
-        $services = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+        $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 
-        if ($services) {
-            $servicesFound += $services.Count
-            $servicesRunning += ($services | Where-Object { $_.Status -eq 'Running' }).Count
+        if ($service) {
+            $servicesFound++
+            if ($service.Status -eq 'Running') {
+                $servicesRunning++
+            }
         }
     }
 
@@ -57,10 +52,10 @@ Function CheckServices {
     if ($servicesFound -eq 2) {
         if ($servicesRunning -eq 2) {
             Log "Both services are running. Exiting script."
-            return
+            exit
         } else {
             Log "Services found but not running. Trying to start them."
-            StartServices -ServiceNames $serviceNames -Token $Token
+            StartServices $serviceNames
         }
     } elseif ($servicesFound -eq 1) {
         Log "Only one service found. Running uninstaller and then installing again."
@@ -70,6 +65,7 @@ Function CheckServices {
     } else {
         Log "No services found. Installing RMM."
         InstallRMM -Token $Token
+
     }
 }
 
@@ -80,25 +76,23 @@ Function StartServices {
     )
 
     foreach ($serviceName in $ServiceNames) {
-        $services = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+        $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 
-        foreach ($service in $services) {
-            if ($service.Status -ne 'Running') {
-                try {
-                    Log "Trying to start service $($service.Name)."
-                    Start-Service -Name $service.Name -ErrorAction Stop
-                    Log "Service $($service.Name) started."
-                } catch {
-                    Log "Failed to start service $($service.Name). Running uninstaller and then installing again." -Level "ERROR"
-                    UninstallRMM
-                    Start-Sleep -Seconds 60
-                    InstallRMM -Token $Token
-                    break
-                }
+        if ($service.Status -ne 'Running') {
+            try {
+                Log "Trying to start service $serviceName."
+                $service | Start-Service -ErrorAction Stop
+                Log "Service $serviceName started."
+            } catch {
+                Log "Failed to start service $serviceName. Running uninstaller and then installing again."
+                UninstallRMM
+                Start-Sleep -Seconds 60
+                InstallRMM -Token $Token
             }
         }
     }
 }
+
 
 Function InstallRMM {
     param (
